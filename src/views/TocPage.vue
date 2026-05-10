@@ -87,7 +87,7 @@ function shortName(name) {
 
     <div v-else-if="!manifest || manifest.pdfs.length === 0" class="toc-state">
       <div class="empty-icon">📂</div>
-      <p>暂无诗歌文件</p>
+      <p>暂无文件</p>
       <p class="hint">请将 PDF 文件放入 <code>/public/data/&lt;标题&gt;/</code> 目录中</p>
     </div>
 
