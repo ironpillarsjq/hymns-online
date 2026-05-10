@@ -34,6 +34,10 @@ const pdfDoc = shallowRef(null)
 const previewVisible = ref(false)
 let previewHideTimer = null
 
+const exitHintVisible = ref(false)
+const exitHintDirection = ref('')
+let exitHintTimer = null
+
 let hideTimer = null
 
 function resetHideTimer() {
@@ -64,11 +68,53 @@ function onPageChange(pageNum) {
   resetHideTimer()
 }
 
+function showExitHint(direction) {
+  clearTimeout(exitHintTimer)
+  exitHintDirection.value = direction
+  exitHintVisible.value = true
+  exitHintTimer = setTimeout(() => {
+    exitHintVisible.value = false
+    exitHintDirection.value = ''
+  }, 2000)
+}
+
+function clearExitHint() {
+  clearTimeout(exitHintTimer)
+  exitHintVisible.value = false
+  exitHintDirection.value = ''
+}
+
 function goPrev() {
+  if (currentPage.value <= 1) {
+    showExitHint('prev')
+    return
+  }
   if (rendererRef.value) rendererRef.value.prevPage()
 }
 
+function onNavPrev() {
+  if (exitHintVisible.value) {
+    clearExitHint()
+    goBack()
+    return
+  }
+  goPrev()
+}
+
+function onNavNext() {
+  if (exitHintVisible.value) {
+    clearExitHint()
+    goBack()
+    return
+  }
+  goNext()
+}
+
 function goNext() {
+  if (currentPage.value >= totalPages.value) {
+    showExitHint('next')
+    return
+  }
   if (rendererRef.value) rendererRef.value.nextPage()
 }
 
@@ -123,6 +169,44 @@ function onKeydown(e) {
 let touchStartX = 0
 let touchStartY = 0
 
+let wheelDebounceTimer = null
+
+function onClick(e) {
+  if (e.target.closest('.page-indicator') ||
+      e.target.closest('.nav-controls') ||
+      e.target.closest('.preview-bar')) {
+    return
+  }
+
+  if (exitHintVisible.value) {
+    clearExitHint()
+    goBack()
+    return
+  }
+
+  goNext()
+}
+
+function onWheelWindow(e) {
+  if (e.target.closest('.page-indicator') ||
+      e.target.closest('.nav-controls') ||
+      e.target.closest('.preview-bar')) {
+    return
+  }
+  e.preventDefault()
+  if (wheelDebounceTimer) return
+
+  if (e.deltaY > 0) {
+    goNext()
+  } else if (e.deltaY < 0) {
+    goPrev()
+  }
+
+  wheelDebounceTimer = setTimeout(() => {
+    wheelDebounceTimer = null
+  }, 300)
+}
+
 function onTouchStart(e) {
   touchStartX = e.touches[0].clientX
   touchStartY = e.touches[0].clientY
@@ -152,6 +236,7 @@ onMounted(() => {
   window.addEventListener('touchstart', onTouchStart, { passive: true })
   window.addEventListener('touchend', onTouchEnd)
   window.addEventListener('mousemove', onMouseMove)
+  window.addEventListener('wheel', onWheelWindow, { passive: false })
   resetHideTimer()
 })
 
@@ -160,13 +245,16 @@ onBeforeUnmount(() => {
   window.removeEventListener('touchstart', onTouchStart)
   window.removeEventListener('touchend', onTouchEnd)
   window.removeEventListener('mousemove', onMouseMove)
+  window.removeEventListener('wheel', onWheelWindow)
   clearTimeout(hideTimer)
   clearTimeout(previewHideTimer)
+  clearTimeout(wheelDebounceTimer)
+  clearTimeout(exitHintTimer)
 })
 </script>
 
 <template>
-  <div class="viewer-page">
+  <div class="viewer-page" @click="onClick">
     <PdfRenderer
       ref="rendererRef"
       :pdf-url="pdfUrl"
@@ -208,10 +296,16 @@ onBeforeUnmount(() => {
 
       <NavControls
         :visible="controlsVisible"
-        @prev="goPrev"
-        @next="goNext"
+        @prev="onNavPrev"
+        @next="onNavNext"
         @back="goBack"
       />
+
+      <div v-if="exitHintVisible" class="exit-hint-overlay">
+        <div class="exit-hint-text">
+          {{ exitHintDirection === 'next' ? '再次点击退出' : '再次点击返回目录' }}
+        </div>
+      </div>
     </template>
   </div>
 </template>
@@ -275,5 +369,30 @@ onBeforeUnmount(() => {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.exit-hint-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.exit-hint-text {
+  background: rgba(0, 0, 0, 0.75);
+  color: #FFFFFF;
+  padding: 16px 32px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
 </style>

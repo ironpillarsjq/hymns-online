@@ -1,37 +1,133 @@
-## 新增需求
+## ADDED Requirements
 
-### 需求：PDF 列表展示
+### Requirement: PDF 列表展示
 
-系统应展示一个目录页面，以可浏览的布局列出所有诗歌 PDF 的展示名称。
+系统 SHALL 支持列表和网格两种布局模式展示 PDF 条目。当文件数量 < 30 时默认使用列表布局，>= 30 时默认使用网格布局。用户可通过右侧切换按钮手动切换模式。
 
-#### 场景：多个 PDF 显示为列表
-- **当** manifest 包含 3 个 PDF 条目
-- **则** 目录页应显示 3 个可点击的条目，每个条目显示 PDF 的展示名称
+#### Scenario: 多个 PDF 显示
+- **WHEN** manifest 包含 3 个 PDF 条目
+- **THEN** 目录页 SHALL 默认以列表布局显示 3 个可点击的条目，每个条目显示 PDF 的展示名称
 
-#### 场景：空状态
-- **当** manifest 包含 0 个 PDF 条目
-- **则** 目录页应显示友好提示信息，告知用户尚无诗歌文件，并附上添加文件的操作指引
+#### Scenario: 空状态
+- **WHEN** manifest 包含 0 个 PDF 条目
+- **THEN** 目录页 SHALL 显示友好提示信息，告知用户尚无诗歌文件，并附上添加文件的操作指引
 
-#### 场景：加载状态
-- **当** manifest JSON 正在请求加载中
-- **则** 目录页应显示加载指示器
+#### Scenario: 加载状态
+- **WHEN** manifest JSON 正在请求加载中
+- **THEN** 目录页 SHALL 显示加载指示器
 
-### 需求：导航至 PDF 阅读器
+### Requirement: 列表布局
+
+系统 SHALL 提供列表布局模式，所有 PDF 条目纵向排列，每行一个条目。
+
+#### Scenario: 列表布局每行一个条目
+- **WHEN** 用户处于列表布局模式且 manifest 包含 15 个条目
+- **THEN** 目录页 SHALL 显示 15 行，每行一个 PDF 条目，行间有适当间距
+
+#### Scenario: 列表布局可滚动
+- **WHEN** 列表条目总高度超过屏幕可视区域
+- **THEN** 列表 SHALL 支持垂直滚动
+
+#### Scenario: 名称超过 20 字截断
+- **WHEN** PDF 展示名称长度超过 20 个字符
+- **THEN** 列表条目 SHALL 显示前 20 个字符 + 省略号（"..."）
+
+#### Scenario: 名称不超过 20 字完整显示
+- **WHEN** PDF 展示名称长度 <= 20 个字符
+- **THEN** 列表条目 SHALL 显示完整名称
+
+### Requirement: 网格布局层级分组
+
+系统 SHALL 在网格布局模式下按层级分组：每 10 个 PDF 条目为"小组"，每 10 个小组为"大组"。
+
+#### Scenario: 120 个条目分组
+- **WHEN** manifest 包含 120 个 PDF 条目
+- **THEN** 目录页 SHALL 显示 12 个小组，小组归入大组
+
+#### Scenario: 小组内 10 个条目
+- **WHEN** manifest 包含第 1 ~ 10 个 PDF 条目
+- **THEN** 它们 SHALL 归入第 1 个小组
+
+#### Scenario: 大组内 10 个小组
+- **WHEN** 存在第 1 ~ 10 个小组
+- **THEN** 它们 SHALL 归入第 1 个大组
+
+### Requirement: 网格布局小组内排列
+
+系统 SHALL 在小组内水平排列条目按钮，根据屏幕宽度调整每行显示的按钮数量。
+
+#### Scenario: 大屏每行 10 个按钮
+- **WHEN** 视口宽度 >= 1200px
+- **THEN** 小组内每行 SHALL 显示 10 个按钮（`flex: 0 0 calc(10% - gap)`）
+
+#### Scenario: 小屏每行 5 个按钮
+- **WHEN** 视口宽度 < 1200px
+- **THEN** 小组内每行 SHALL 显示 5 个按钮（`flex: 0 0 calc(20% - gap)`）
+
+### Requirement: 网格布局大组间响应式列数
+
+系统 SHALL 使用 CSS Grid 响应式排列大组。列宽始终保持与满列时一致（3 列时每列 `(100% - 2rem) / 3`），内容不足时 `auto-fit` 折叠空列，剩余列居中。
+
+#### Scenario: 大屏 3 列
+- **WHEN** 视口宽度 >= 1200px
+- **THEN** 大组 SHALL 以最多 3 列网格排列（`repeat(auto-fit, calc((100% - 2rem) / 3))`），`justify-content: center`
+
+#### Scenario: 中屏 2 列
+- **WHEN** 视口宽度在 768px ~ 1199px 之间
+- **THEN** 大组 SHALL 以最多 2 列网格排列（`repeat(auto-fit, calc((100% - 1rem) / 2))`），`justify-content: center`
+
+#### Scenario: 小屏 1 列
+- **WHEN** 视口宽度 < 768px
+- **THEN** 大组 SHALL 以 1 列排列
+
+#### Scenario: 列宽不随列数减少而变宽
+- **WHEN** 大组数量少于最大列数（如 1200px+ 屏幕仅 2 个大组）
+- **THEN** 每列宽度 SHALL 与 3 列满排时相同，不因空列消失而拉伸填满
+
+#### Scenario: 大组不足时居中
+- **WHEN** 大组数量少于最大列数
+- **THEN** 有效列 SHALL 在页面内水平居中
+
+### Requirement: 网格布局名称截断
+
+网格布局中的条目按钮名称超过 4 个字符时 SHALL 截断显示。
+
+#### Scenario: 名称超过 4 字截断
+- **WHEN** PDF 展示名称长度超过 4 个字符
+- **THEN** 按钮 SHALL 显示前 4 个字符 + 省略号
+
+#### Scenario: 名称不超过 4 字完整显示
+- **WHEN** PDF 展示名称长度 <= 4 个字符
+- **THEN** 按钮 SHALL 显示完整名称
+
+### Requirement: 网格布局按钮样式
+
+网格布局的条目按钮 SHALL 尺寸小巧，适合 300 ~ 1200 条目的密集排列。
+
+#### Scenario: 按钮基础样式
+- **WHEN** 网格布局按钮渲染时
+- **THEN** 按钮 SHALL 满足：字号 0.65rem、padding 0.3em 0.5em、文字居中、white-space: nowrap、cursor pointer、hover 时背景变色
+
+### Requirement: 全局可滚动
+
+目录页整体 SHALL 支持垂直滚动（`overflow-y: auto`），确保所有布局模式下内容超出屏幕高度时可浏览。
+
+### Requirement: 导航至 PDF 阅读器
 
 每个目录条目应可点击，将用户导航至 PDF 阅读器页面并加载所选 PDF。
 
-#### 场景：点击查看 PDF
-- **当** 用户点击目录中"春晓"对应的条目
-- **则** 浏览器应导航至 PDF 阅读器路由，参数为对应的 PDF 路径
+#### Scenario: 点击查看 PDF
+- **WHEN** 用户点击目录中"春晓"对应的条目
+- **THEN** 浏览器应导航至 PDF 阅读器路由，参数为对应的 PDF 路径
 
-#### 场景：浏览器返回按钮
-- **当** 用户在 PDF 阅读器页面点击浏览器返回按钮
-- **则** 浏览器应返回至目录页
+#### Scenario: 浏览器返回按钮
+- **WHEN** 用户在 PDF 阅读器页面点击浏览器返回按钮
+- **THEN** 浏览器应返回至目录页
 
-### 需求：网站标题展示
+### Requirement: 网站标题展示
 
 目录页应在页面顶部显著位置显示网站标题（取自 data 子目录名），HTML 文档标题应同步反映该标题。
 
-#### 场景：标题取自数据目录
-- **当** data 子目录名为 "poems"
-- **则** 页面标题应显示 "poems"（或首字母大写的 "Poems"）作为标题
+#### Scenario: 标题取自数据目录
+- **WHEN** data 子目录名为 "poems"
+- **THEN** 页面标题应显示 "poems"（或首字母大写的 "Poems"）作为标题

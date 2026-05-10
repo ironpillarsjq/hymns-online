@@ -54,9 +54,13 @@ const smallGroups = computed(() => {
 
 const largeGroups = computed(() => {
   const result = []
+  const totalPdfs = manifest.value?.pdfs?.length || 0
   for (let i = 0; i < smallGroups.value.length; i += 10) {
+    const start = i * 10 + 1
+    const end = Math.min((i + 10) * 10, totalPdfs)
     result.push({
       idx: i,
+      range: `${start}-${end}`,
       smallGroups: smallGroups.value.slice(i, i + 10),
     })
   }
@@ -122,8 +126,10 @@ function shortName(name) {
         <div
           v-for="lg in largeGroups"
           :key="lg.idx"
-          class="toc-large-group"
+          class="toc-large-group-wrapper"
         >
+          <span class="toc-group-range">{{ lg.range }}</span>
+          <div class="toc-large-group">
           <div
             v-for="(sg, sgIdx) in lg.smallGroups"
             :key="sgIdx"
@@ -142,6 +148,7 @@ function shortName(name) {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </template>
   </div>
@@ -234,17 +241,26 @@ function shortName(name) {
 /* ── Grid layout ── */
 .toc-grid {
   display: grid;
-  gap: 1rem;
+  column-gap: 1rem;
+  row-gap: 2rem;
   width: 100%;
   max-width: 94vw;
   flex: 1;
   overflow-y: auto;
   align-content: start;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-top: 2rem;
+}
+
+.toc-grid::-webkit-scrollbar {
+  display: none;
 }
 
 @media (max-width: 1199px) and (min-width: 768px) {
   .toc-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, calc((100% - 1rem) / 2));
+    justify-content: center;
   }
 }
 
@@ -256,7 +272,8 @@ function shortName(name) {
 
 @media (min-width: 1200px) {
   .toc-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, calc((100% - 2rem) / 3));
+    justify-content: center;
   }
 }
 
@@ -265,6 +282,20 @@ function shortName(name) {
   border: 1px solid var(--color-light);
   border-radius: 8px;
   padding: 0.75rem;
+}
+
+.toc-large-group-wrapper {
+  position: relative;
+}
+
+.toc-group-range {
+  position: absolute;
+  top: -1.5rem;
+  left: 2px;
+  font-size: 1.2rem;
+  color: var(--color-text);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .toc-small-group {

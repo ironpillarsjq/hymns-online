@@ -31,8 +31,8 @@ const emit = defineEmits(['prev', 'next', 'back'])
 }
 
 .nav-btn {
-  background: var(--color-primary);
-  border: 1px solid var(--color-primary);
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.7);
   color: #FFFFFF;
   width: 42px;
   height: 42px;
@@ -48,8 +48,8 @@ const emit = defineEmits(['prev', 'next', 'back'])
 }
 
 .nav-btn:hover {
-  background: var(--color-secondary);
-  border-color: var(--color-secondary);
+  background: rgba(0, 0, 0, 0.85);
+  border-color: rgba(0, 0, 0, 0.85);
 }
 
 .nav-spacer {
