@@ -8,6 +8,9 @@ const manifest = ref(null)
 const loading = ref(true)
 const error = ref(null)
 
+const layoutMode = ref('list')
+const userOverride = ref(false)
+
 onMounted(async () => {
   try {
     const base = import.meta.env.BASE_URL
@@ -25,25 +28,46 @@ watch(manifest, (val) => {
   if (val && val.siteTitle) {
     document.title = val.siteTitle
   }
+  if (val && !userOverride.value) {
+    layoutMode.value = val.pdfs && val.pdfs.length >= 30 ? 'grid' : 'list'
+  }
 }, { immediate: true })
 
 function openPdf(pdfPath) {
   router.push({ name: 'viewer', query: { path: pdfPath } })
 }
 
-const chunkedPdfs = computed(() => {
+function toggleLayout() {
+  userOverride.value = true
+  layoutMode.value = layoutMode.value === 'list' ? 'grid' : 'list'
+}
+
+const smallGroups = computed(() => {
   const result = []
   if (!manifest.value?.pdfs) return result
   const list = manifest.value.pdfs
-  for (let i = 0; i < list.length; i += 100) {
-    result.push(list.slice(i, i + 100))
+  for (let i = 0; i < list.length; i += 10) {
+    result.push(list.slice(i, i + 10))
   }
   return result
 })
 
-function chunkStart(index) {
-  return index * 100 + 1
+const largeGroups = computed(() => {
+  const result = []
+  for (let i = 0; i < smallGroups.value.length; i += 10) {
+    result.push({
+      idx: i,
+      smallGroups: smallGroups.value.slice(i, i + 10),
+    })
+  }
+  return result
+})
+
+function shortName(name) {
+  return name.length > 4 ? name.slice(0, 4) + '..' : name
 }
+
+
 </script>
 
 <template>
@@ -65,24 +89,57 @@ function chunkStart(index) {
 
     <template v-else>
       <h1 class="toc-title">{{ manifest.siteTitle }}</h1>
-      <div class="toc-grid">
-        <div
-          v-for="(chunk, chunkIdx) in chunkedPdfs"
-          :key="chunkIdx"
-          class="toc-chunk"
+
+      <button class="layout-switch" @click="toggleLayout" :title="layoutMode === 'list' ? '切换到网格布局' : '切换到列表布局'">
+        <svg v-if="layoutMode === 'list'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+        </svg>
+        <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6" />
+          <line x1="8" y1="12" x2="21" y2="12" />
+          <line x1="8" y1="18" x2="21" y2="18" />
+          <line x1="3" y1="6" x2="3.01" y2="6" />
+          <line x1="3" y1="12" x2="3.01" y2="12" />
+          <line x1="3" y1="18" x2="3.01" y2="18" />
+        </svg>
+      </button>
+
+      <ul v-if="layoutMode === 'list'" class="toc-list">
+        <li
+          v-for="pdf in manifest.pdfs"
+          :key="pdf.path"
+          class="toc-list-item"
+          @click="openPdf(pdf.path)"
         >
-          <div class="chunk-header">
-            {{ chunkStart(chunkIdx) }} — {{ chunkStart(chunkIdx) + chunk.length - 1 }}
-          </div>
-          <div class="chunk-buttons">
-            <button
-              v-for="pdf in chunk"
-              :key="pdf.path"
-              class="toc-btn"
-              @click="openPdf(pdf.path)"
-            >
-              {{ pdf.displayName }}
-            </button>
+          <span class="toc-list-name">{{ pdf.displayName }}</span>
+        </li>
+      </ul>
+
+      <div v-else class="toc-grid">
+        <div
+          v-for="lg in largeGroups"
+          :key="lg.idx"
+          class="toc-large-group"
+        >
+          <div
+            v-for="(sg, sgIdx) in lg.smallGroups"
+            :key="sgIdx"
+            class="toc-small-group"
+          >
+            <div class="sg-buttons">
+              <button
+                v-for="pdf in sg"
+                :key="pdf.path"
+                class="toc-btn"
+                @click="openPdf(pdf.path)"
+                :title="pdf.displayName"
+              >
+{{ shortName(pdf.displayName) }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -98,7 +155,8 @@ function chunkStart(index) {
   flex-direction: column;
   align-items: center;
   overflow-y: auto;
-  padding: 5rem 1rem 2rem;
+  padding: 5rem 0.5rem 2rem;
+  position: relative;
 }
 
 .toc-title {
@@ -106,13 +164,82 @@ function chunkStart(index) {
   margin-bottom: 2rem;
   color: var(--color-primary);
   letter-spacing: 0.1em;
+  flex-shrink: 0;
 }
 
+/* ── Layout switch button ── */
+.layout-switch {
+  position: fixed;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 15;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-background);
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.layout-switch:hover {
+  background: var(--color-secondary);
+}
+
+/* ── List layout ── */
+.toc-list {
+  list-style: none;
+  width: 100%;
+  max-width: 500px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-list-item {
+  background: var(--color-very-light);
+  border: 1px solid var(--color-light);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.toc-list-item:hover {
+  background: #F0F0F0;
+  border-color: var(--color-primary);
+}
+
+.toc-list-name {
+  display: block;
+  font-size: 1rem;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 20em;
+}
+
+/* ── Grid layout ── */
 .toc-grid {
   display: grid;
   gap: 1rem;
   width: 100%;
-  max-width: 1400px;
+  max-width: 1800px;
+  flex: 1;
+  overflow-y: auto;
+  align-content: start;
 }
 
 @media (max-width: 1199px) and (min-width: 768px) {
@@ -133,41 +260,44 @@ function chunkStart(index) {
   }
 }
 
-.toc-chunk {
+.toc-large-group {
   background: var(--color-very-light);
   border: 1px solid var(--color-light);
   border-radius: 8px;
   padding: 0.75rem;
 }
 
-.chunk-header {
-  font-size: 0.8rem;
-  color: var(--color-text-light);
-  margin-bottom: 0.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--color-light);
+.toc-small-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 0.35rem;
 }
 
-.chunk-buttons {
+.toc-small-group:last-child {
+  margin-bottom: 0;
+}
+
+.sg-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 2px;
 }
 
 .toc-btn {
-  flex: 0 0 calc(10% - 4px);
-  background: transparent;
-  border: 1px solid var(--color-light);
+  flex: 0 0 calc(10% - 2px);
+  background: var(--color-background);
+  border: 1px solid transparent;
   border-radius: 4px;
-  padding: 0.4em 0.6em;
-  font-size: 0.85rem;
+  padding: 0.3em 0.3em;
+  font-size: 0.9rem;
   color: var(--color-text);
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 4em;
 }
 
 .toc-btn:hover {
@@ -177,10 +307,11 @@ function chunkStart(index) {
 
 @media (max-width: 767px) {
   .toc-btn {
-    flex: 0 0 calc(20% - 4px);
+    flex: 0 0 calc(20% - 2px);
   }
 }
 
+/* ── State styles ── */
 .toc-state {
   display: flex;
   flex-direction: column;
