@@ -236,7 +236,7 @@ function shortName(name) {
   display: grid;
   gap: 1rem;
   width: 100%;
-  max-width: 1800px;
+  max-width: 94vw;
   flex: 1;
   overflow-y: auto;
   align-content: start;
