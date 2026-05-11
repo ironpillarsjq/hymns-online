@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import TocPage from '@/views/TocPage.vue'
-import PdfViewerPage from '@/views/PdfViewerPage.vue'
+import ViewerPage from '@/views/ViewerPage.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -13,7 +13,7 @@ const router = createRouter({
     {
       path: '/viewer',
       name: 'viewer',
-      component: PdfViewerPage,
+      component: ViewerPage,
     },
   ],
 })

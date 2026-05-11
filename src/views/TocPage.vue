@@ -29,12 +29,12 @@ watch(manifest, (val) => {
     document.title = val.siteTitle
   }
   if (val && !userOverride.value) {
-    layoutMode.value = val.pdfs && val.pdfs.length >= 30 ? 'grid' : 'list'
+    layoutMode.value = val.folders && val.folders.length >= 30 ? 'grid' : 'list'
   }
 }, { immediate: true })
 
-function openPdf(pdfPath) {
-  router.push({ name: 'viewer', query: { path: pdfPath } })
+function openFolder(folderPath) {
+  router.push({ name: 'viewer', query: { folder: folderPath } })
 }
 
 function toggleLayout() {
@@ -44,8 +44,8 @@ function toggleLayout() {
 
 const smallGroups = computed(() => {
   const result = []
-  if (!manifest.value?.pdfs) return result
-  const list = manifest.value.pdfs
+  if (!manifest.value?.folders) return result
+  const list = manifest.value.folders
   for (let i = 0; i < list.length; i += 10) {
     result.push(list.slice(i, i + 10))
   }
@@ -54,10 +54,10 @@ const smallGroups = computed(() => {
 
 const largeGroups = computed(() => {
   const result = []
-  const totalPdfs = manifest.value?.pdfs?.length || 0
+  const totalFolders = manifest.value?.folders?.length || 0
   for (let i = 0; i < smallGroups.value.length; i += 10) {
     const start = i * 10 + 1
-    const end = Math.min((i + 10) * 10, totalPdfs)
+    const end = Math.min((i + 10) * 10, totalFolders)
     result.push({
       idx: i,
       range: `${start}-${end}`,
@@ -85,10 +85,10 @@ function shortName(name) {
       <p class="error-text">{{ error }}</p>
     </div>
 
-    <div v-else-if="!manifest || manifest.pdfs.length === 0" class="toc-state">
+    <div v-else-if="!manifest || !manifest.folders || manifest.folders.length === 0" class="toc-state">
       <div class="empty-icon">📂</div>
       <p>暂无文件</p>
-      <p class="hint">请将 PDF 文件放入 <code>/public/data/&lt;标题&gt;/</code> 目录中</p>
+      <p class="hint">请将图片放入 <code>/public/data/&lt;标题&gt;/&lt;文件夹&gt;/</code> 目录中</p>
     </div>
 
     <template v-else>
@@ -113,12 +113,13 @@ function shortName(name) {
 
       <ul v-if="layoutMode === 'list'" class="toc-list">
         <li
-          v-for="pdf in manifest.pdfs"
-          :key="pdf.path"
+          v-for="folder in manifest.folders"
+          :key="folder.path"
           class="toc-list-item"
-          @click="openPdf(pdf.path)"
+          @click="openFolder(folder.path)"
         >
-          <span class="toc-list-name">{{ pdf.displayName }}</span>
+          <span class="toc-list-name">{{ folder.displayName }}</span>
+          <span class="toc-list-count">（{{ folder.imageCount }}张）</span>
         </li>
       </ul>
 
@@ -137,13 +138,13 @@ function shortName(name) {
           >
             <div class="sg-buttons">
               <button
-                v-for="pdf in sg"
-                :key="pdf.path"
+                v-for="folder in sg"
+                :key="folder.path"
                 class="toc-btn"
-                @click="openPdf(pdf.path)"
-                :title="pdf.displayName"
+                @click="openFolder(folder.path)"
+                :title="folder.displayName"
               >
-{{ shortName(pdf.displayName) }}
+{{ shortName(folder.displayName) }}
               </button>
             </div>
           </div>
@@ -236,6 +237,12 @@ function shortName(name) {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 20em;
+}
+
+.toc-list-count {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  margin-left: 0.25rem;
 }
 
 /* ── Grid layout ── */

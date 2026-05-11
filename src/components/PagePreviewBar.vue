@@ -1,55 +1,15 @@
 <script setup>
-import { ref, watch, toRaw } from 'vue'
-
 const props = defineProps({
-  pdfDoc: { type: Object, default: null },
-  currentPage: { type: Number, required: true },
-  totalPages: { type: Number, required: true },
+  images: { type: Array, default: () => [] },
+  currentIndex: { type: Number, required: true },
+  totalImages: { type: Number, required: true },
   visible: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['navigateTo', 'mouseleave', 'mouseenter'])
 
-const thumbnails = ref([])
-
-async function generateThumbnails() {
-  const doc = toRaw(props.pdfDoc)
-  if (!doc || props.totalPages <= 0) return
-
-  const items = []
-  for (let i = 1; i <= props.totalPages; i++) {
-    const page = await doc.getPage(i)
-    const viewport = page.getViewport({ scale: 1 })
-
-    const thumbWidth = 120
-    const scale = thumbWidth / viewport.width
-    const thumbHeight = Math.round(viewport.height * scale)
-
-    const canvas = document.createElement('canvas')
-    canvas.width = thumbWidth
-    canvas.height = thumbHeight
-
-    const ctx = canvas.getContext('2d')
-    await page.render({
-      canvasContext: ctx,
-      viewport: page.getViewport({ scale }),
-    }).promise
-
-    items.push({
-      pageNum: i,
-      dataUrl: canvas.toDataURL(),
-    })
-  }
-
-  thumbnails.value = items
-}
-
-watch(() => props.totalPages, () => {
-  generateThumbnails()
-}, { immediate: true })
-
-function onThumbnailClick(pageNum) {
-  emit('navigateTo', pageNum)
+function onThumbnailClick(index) {
+  emit('navigateTo', index)
 }
 </script>
 
@@ -62,13 +22,13 @@ function onThumbnailClick(pageNum) {
   >
     <div class="preview-bar__thumbnails">
       <div
-        v-for="t in thumbnails"
-        :key="t.pageNum"
-        :class="['thumbnail', { 'thumbnail--active': t.pageNum === currentPage }]"
-        @click="onThumbnailClick(t.pageNum)"
+        v-for="(src, idx) in images"
+        :key="idx"
+        :class="['thumbnail', { 'thumbnail--active': idx === currentIndex }]"
+        @click="onThumbnailClick(idx)"
       >
-        <img :src="t.dataUrl" class="thumbnail__img" />
-        <span class="thumbnail__label">{{ t.pageNum }}</span>
+        <img :src="src" class="thumbnail__img" />
+        <span class="thumbnail__label">{{ idx + 1 }}</span>
       </div>
     </div>
   </div>
@@ -131,6 +91,8 @@ function onThumbnailClick(pageNum) {
   display: block;
   border: 2px solid #888;
   box-sizing: border-box;
+  object-fit: cover;
+  aspect-ratio: auto;
 }
 
 .thumbnail__label {

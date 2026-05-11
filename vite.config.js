@@ -2,13 +2,13 @@ import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import pdfManifestPlugin from './vite-plugin-pdf-manifest.js'
+import imageManifestPlugin from './vite-plugin-image-manifest.js'
 
 export default defineConfig({
   base: './',
   plugins: [
     vue(),
-    pdfManifestPlugin(),
+    imageManifestPlugin(),
   ],
   resolve: {
     alias: {
