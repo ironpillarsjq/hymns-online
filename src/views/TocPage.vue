@@ -177,10 +177,11 @@ function shortName(name) {
 }
 
 .toc-title {
-  font-size: 2rem;
+  font-size: 2.4rem;
   margin-bottom: 2rem;
   color: var(--color-primary);
   letter-spacing: 0.1em;
+  text-align: center;
   flex-shrink: 0;
 }
 

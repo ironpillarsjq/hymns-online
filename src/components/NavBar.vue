@@ -32,6 +32,11 @@ onMounted(async () => {
       :class="{ active: route.name === 'site' && route.params.siteName === site.name }"
       :to="{ name: 'site', params: { siteName: site.name } }"
     >{{ site.title }}</router-link>
+    <router-link
+      class="nav-link"
+      :class="{ active: route.name === 'help' }"
+      :to="{ name: 'help' }"
+    >帮助</router-link>
   </nav>
 </template>
 
