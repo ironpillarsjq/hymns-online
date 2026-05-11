@@ -205,8 +205,6 @@ function shortName(name) {
   list-style: none;
   width: 100%;
   max-width: 500px;
-  flex: 1;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -252,16 +250,8 @@ function shortName(name) {
   row-gap: 2rem;
   width: 100%;
   max-width: 94vw;
-  flex: 1;
-  overflow-y: auto;
   align-content: start;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
   padding-top: 2rem;
-}
-
-.toc-grid::-webkit-scrollbar {
-  display: none;
 }
 
 @media (max-width: 1199px) and (min-width: 768px) {
