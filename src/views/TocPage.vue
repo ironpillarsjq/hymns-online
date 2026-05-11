@@ -100,9 +100,9 @@ function shortName(name) {
     </div>
 
     <template v-else>
-      <h1 class="toc-title">{{ currentSite ? currentSite.title : '' }}</h1>
-
-      <button class="layout-switch" @click="toggleLayout" :title="layoutMode === 'list' ? '切换到网格布局' : '切换到列表布局'">
+      <div class="toc-header">
+        <h1 class="toc-title">{{ currentSite ? currentSite.title : '' }}</h1>
+        <button class="layout-switch" @click="toggleLayout" :title="layoutMode === 'list' ? '切换到网格布局' : '切换到列表布局'">
         <svg v-if="layoutMode === 'list'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="3" width="7" height="7" />
           <rect x="14" y="3" width="7" height="7" />
@@ -118,6 +118,7 @@ function shortName(name) {
           <line x1="3" y1="18" x2="3.01" y2="18" />
         </svg>
       </button>
+      </div>
 
       <ul v-if="layoutMode === 'list'" class="toc-list">
         <li
