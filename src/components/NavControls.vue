@@ -10,7 +10,7 @@ const emit = defineEmits(['prev', 'next', 'back'])
   <Transition name="fade">
     <div v-if="visible" class="nav-controls">
       <div class="nav-spacer"></div>
-      <button class="nav-btn nav-back" @click="emit('back')" title="返回目录">目录</button>
+      <button class="nav-btn nav-back" @click="emit('back')" title="返回">返回</button>
       <button class="nav-btn nav-arrow" @click="emit('prev')" title="上一页"><img class="nav-icon" src="/public/ico/caretleft.png" alt="上一页" /></button>
       <button class="nav-btn nav-arrow" @click="emit('next')" title="下一页"><img class="nav-icon" src="/public/ico/caretright.png" alt="下一页" /></button>
     </div>

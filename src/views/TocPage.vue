@@ -121,7 +121,7 @@ function shortName(name) {
 
       <ul v-if="layoutMode === 'list'" class="toc-list">
         <li
-          v-for="folder in manifest.folders"
+          v-for="folder in currentSite.folders"
           :key="folder.path"
           class="toc-list-item"
           @click="openFolder(folder.path)"

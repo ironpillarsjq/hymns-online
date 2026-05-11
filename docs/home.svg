@@ -1,0 +1,26 @@
+<svg viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+  <text 
+    x="50%" 
+    y="45%" 
+    text-anchor="middle" 
+    dominant-baseline="middle" 
+    font-family="'KaiTi', '楷体', 'STKaiti', '华文楷体', serif" 
+    font-weight="bold" 
+    font-size="300" 
+    fill="#626C83">
+    诗歌
+  </text>
+
+  <line x1="250" y1="380" x2="750" y2="380" stroke="#888FA0" stroke-width="1" opacity="0.6" />
+
+  <text 
+    x="50%" 
+    y="440" 
+    text-anchor="middle" 
+    dominant-baseline="middle" 
+    font-family="'KaiTi', '楷体', 'STKaiti', '华文楷体', serif" 
+    font-size="22" 
+    fill="#797979">
+    【弗5:19】19当用诗章、颂词、灵歌彼此对说，口唱心和地赞美主。
+  </text>
+</svg>
