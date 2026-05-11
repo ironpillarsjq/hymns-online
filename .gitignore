@@ -36,3 +36,12 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+
+# 自定义
+/public
+/node_modules
+!/docs
+/.vscode
+/public/*
+!/public/.gitkeep

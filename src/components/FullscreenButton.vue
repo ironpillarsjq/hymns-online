@@ -68,8 +68,8 @@ onUnmounted(() => {
     @mouseenter="onButtonMouseEnter"
     :title="isFullscreen ? '退出全屏 (F11)' : '进入全屏 (F11)'"
   >
-    <img v-if="!isFullscreen" src="/ico/FullScreen.png" alt="进入全屏" width="24" height="24" />
-    <img v-else src="/ico/QuitFullScreen.png" alt="退出全屏" width="24" height="24" />
+    <img v-if="!isFullscreen" src="/public/ico/FullScreen.png" alt="进入全屏" width="24" height="24" />
+    <img v-else src="/public/ico/QuitFullScreen.png" alt="退出全屏" width="24" height="24" />
   </button>
 </template>
 

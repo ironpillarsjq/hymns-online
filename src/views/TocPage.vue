@@ -289,6 +289,8 @@ function shortName(name) {
   border: 1px solid var(--color-light);
   border-radius: 8px;
   padding: 0.75rem;
+  columns: 3;
+  column-gap: 0.5rem;
 }
 
 .toc-large-group-wrapper {
@@ -305,11 +307,25 @@ function shortName(name) {
   white-space: nowrap;
 }
 
+/* Responsive columns within large groups */
+@media (max-width: 1199px) and (min-width: 768px) {
+  .toc-large-group {
+    columns: 2;
+  }
+}
+
+@media (max-width: 767px) {
+  .toc-large-group {
+    columns: 1;
+  }
+}
+
 .toc-small-group {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.8rem;
+  break-inside: avoid;
 }
 
 .toc-small-group:last-child {
@@ -322,13 +338,17 @@ function shortName(name) {
   gap: 2px;
 }
 
+.sg-buttons > :first-child {
+  font-weight: 700;
+}
+
 .toc-btn {
-  flex: 0 0 calc(10% - 2px);
+  flex: 0 0 calc((100% - 8px) / 5);
   background: var(--color-background);
   border: 1px solid transparent;
   border-radius: 4px;
-  padding: 0.3em 0.3em;
-  font-size: 0.9rem;
+  padding: 0.4em 0.5em;
+  font-size: 0.8rem;
   color: var(--color-text);
   cursor: pointer;
   text-align: center;
@@ -341,12 +361,6 @@ function shortName(name) {
 .toc-btn:hover {
   background: var(--color-light);
   border-color: var(--color-primary);
-}
-
-@media (max-width: 767px) {
-  .toc-btn {
-    flex: 0 0 calc(20% - 2px);
-  }
 }
 
 /* ── State styles ── */
