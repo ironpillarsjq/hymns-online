@@ -1,8 +1,13 @@
 <script setup>
+import { useRoute } from 'vue-router'
+import NavBar from './components/NavBar.vue'
 import FullscreenButton from './components/FullscreenButton.vue'
+
+const route = useRoute()
 </script>
 
 <template>
+  <NavBar v-if="route.name !== 'viewer'" />
   <router-view />
   <FullscreenButton />
 </template>

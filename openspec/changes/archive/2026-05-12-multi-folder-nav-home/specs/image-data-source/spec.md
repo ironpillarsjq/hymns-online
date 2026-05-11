@@ -1,4 +1,4 @@
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: 从 /public/data 目录发现图片文件夹
 
@@ -31,27 +31,3 @@
 #### Scenario: 站点内文件夹清单
 - **WHEN** `public/data/712/song1/` 包含 `01.jpg`、`02.jpg`
 - **THEN** 712 站点的 `folders` 数组 SHALL 包含 `{ "path": "data/712/song1", ... }`
-
-### Requirement: 数字文件名排序
-
-系统 SHALL 将每个文件夹内的图片文件名按其开头的数字进行数值排序。不含前导数字的文件 SHALL 按字母序排列并置于数值排序文件之后。
-
-#### Scenario: 数值排序
-- **WHEN** 文件夹包含 `2.jpg`、`10.jpg`、`1.jpg`
-- **THEN** images 数组 SHALL 排序为 ["1.jpg", "2.jpg", "10.jpg"]（非字典序 "1.jpg", "10.jpg", "2.jpg"）
-
-#### Scenario: 零填充文件名
-- **WHEN** 文件夹包含 `001.jpg`、`002.jpg`、`010.jpg`
-- **THEN** images 数组 SHALL 排序为 ["001.jpg", "002.jpg", "010.jpg"]
-
-#### Scenario: 混合非数字文件名
-- **WHEN** 文件夹包含 `01.jpg`、`cover.jpg`、`02.jpg`
-- **THEN** images 数组 SHALL 排序为 ["01.jpg", "02.jpg", "cover.jpg"]
-
-### Requirement: 全静态资源服务
-
-构建后的站点 SHALL 为全静态的 HTML、CSS、JS 和图片文件集合，无服务端运行时。所有图片文件路径 SHALL 使用相对 URL，确保 GitHub Pages 兼容。
-
-#### Scenario: 相对资源路径
-- **WHEN** 阅读器在运行时加载图片
-- **THEN** 图片的 URL SHALL 为相对于站点根目录的路径（如 `data/poems/spring/01.jpg`）

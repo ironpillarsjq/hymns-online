@@ -46,7 +46,8 @@ async function loadFolder() {
     const resp = await fetch(`${base}data/manifest.json`)
     if (!resp.ok) throw new Error('无法加载目录')
     const manifest = await resp.json()
-    const folder = manifest.folders?.find(f => f.path === folderPath.value)
+    const allFolders = (manifest.sites || []).flatMap(s => s.folders || [])
+    const folder = allFolders.find(f => f.path === folderPath.value)
     if (!folder) throw new Error('未找到该文件夹')
 
     images.value = folder.images.map(fn => `${base}${encodeURI(folderPath.value)}/${encodeURI(fn)}`)
@@ -133,7 +134,13 @@ function goNext() {
 }
 
 function goBack() {
-  router.push({ name: 'toc' })
+  const parts = folderPath.value.split('/')
+  const siteName = parts.length >= 2 ? parts[1] : ''
+  if (siteName) {
+    router.push({ name: 'site', params: { siteName } })
+  } else {
+    router.push({ name: 'home' })
+  }
 }
 
 function onEditStart() {

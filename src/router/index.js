@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import HomePage from '@/views/HomePage.vue'
 import TocPage from '@/views/TocPage.vue'
 import ViewerPage from '@/views/ViewerPage.vue'
 
@@ -7,7 +8,12 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'toc',
+      name: 'home',
+      component: HomePage,
+    },
+    {
+      path: '/site/:siteName',
+      name: 'site',
       component: TocPage,
     },
     {

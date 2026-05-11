@@ -39,42 +39,49 @@ function generateManifest(root) {
   const publicDataDir = path.join(root, 'public', 'data')
 
   if (!fs.existsSync(publicDataDir)) {
-    return null
+    return { sites: [] }
   }
 
-  const subDirs = fs.readdirSync(publicDataDir, { withFileTypes: true })
+  const siteDirs = fs.readdirSync(publicDataDir, { withFileTypes: true })
     .filter(d => d.isDirectory())
 
-  if (subDirs.length === 0) {
-    return null
+  if (siteDirs.length === 0) {
+    return { sites: [] }
   }
 
-  const siteDir = subDirs[0]
-  const sitePath = path.join(publicDataDir, siteDir.name)
+  const sites = []
 
-  const folderDirs = fs.readdirSync(sitePath, { withFileTypes: true })
-    .filter(d => d.isDirectory())
+  for (const siteDir of siteDirs) {
+    const sitePath = path.join(publicDataDir, siteDir.name)
 
-  const folders = []
-  for (const fd of folderDirs) {
-    const folderPath = path.join(sitePath, fd.name)
-    const files = fs.readdirSync(folderPath).filter(f => isImageFile(f))
-    if (files.length === 0) continue
+    const folderDirs = fs.readdirSync(sitePath, { withFileTypes: true })
+      .filter(d => d.isDirectory())
 
-    const sorted = sortByNumericFilename(files)
-    folders.push({
-      folderName: fd.name,
-      displayName: deriveDisplayName(fd.name),
-      path: `data/${siteDir.name}/${fd.name}`,
-      imageCount: sorted.length,
-      images: sorted,
+    const folders = []
+    for (const fd of folderDirs) {
+      const folderPath = path.join(sitePath, fd.name)
+      const files = fs.readdirSync(folderPath).filter(f => isImageFile(f))
+      if (files.length === 0) continue
+
+      const sorted = sortByNumericFilename(files)
+      folders.push({
+        folderName: fd.name,
+        displayName: deriveDisplayName(fd.name),
+        path: `data/${siteDir.name}/${fd.name}`,
+        imageCount: sorted.length,
+        images: sorted,
+      })
+    }
+
+    sites.push({
+      name: siteDir.name,
+      title: siteDir.name,
+      path: `data/${siteDir.name}`,
+      folders,
     })
   }
 
-  return {
-    siteTitle: siteDir.name,
-    folders,
-  }
+  return { sites }
 }
 
 export default function imageManifestPlugin() {
@@ -92,7 +99,7 @@ export default function imageManifestPlugin() {
         if (req.url === '/data/manifest.json') {
           const manifest = generateManifest(root)
           res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify(manifest ?? { siteTitle: '', folders: [] }))
+          res.end(JSON.stringify(manifest))
           return
         }
         next()

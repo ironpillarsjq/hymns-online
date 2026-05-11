@@ -1,8 +1,9 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
 
 const manifest = ref(null)
 const loading = ref(true)
@@ -10,6 +11,13 @@ const error = ref(null)
 
 const layoutMode = ref('list')
 const userOverride = ref(false)
+
+const currentSite = computed(() => {
+  if (!manifest.value?.sites) return null
+  const siteName = route.params.siteName
+  if (!siteName) return null
+  return manifest.value.sites.find(s => s.name === siteName) || null
+})
 
 onMounted(async () => {
   try {
@@ -24,12 +32,12 @@ onMounted(async () => {
   }
 })
 
-watch(manifest, (val) => {
-  if (val && val.siteTitle) {
-    document.title = val.siteTitle
+watch(currentSite, (site) => {
+  if (site && site.title) {
+    document.title = site.title
   }
-  if (val && !userOverride.value) {
-    layoutMode.value = val.folders && val.folders.length >= 30 ? 'grid' : 'list'
+  if (site && !userOverride.value) {
+    layoutMode.value = site.folders && site.folders.length >= 30 ? 'grid' : 'list'
   }
 }, { immediate: true })
 
@@ -44,8 +52,8 @@ function toggleLayout() {
 
 const smallGroups = computed(() => {
   const result = []
-  if (!manifest.value?.folders) return result
-  const list = manifest.value.folders
+  if (!currentSite.value?.folders) return result
+  const list = currentSite.value.folders
   for (let i = 0; i < list.length; i += 10) {
     result.push(list.slice(i, i + 10))
   }
@@ -54,7 +62,7 @@ const smallGroups = computed(() => {
 
 const largeGroups = computed(() => {
   const result = []
-  const totalFolders = manifest.value?.folders?.length || 0
+  const totalFolders = currentSite.value?.folders?.length || 0
   for (let i = 0; i < smallGroups.value.length; i += 10) {
     const start = i * 10 + 1
     const end = Math.min((i + 10) * 10, totalFolders)
@@ -85,14 +93,14 @@ function shortName(name) {
       <p class="error-text">{{ error }}</p>
     </div>
 
-    <div v-else-if="!manifest || !manifest.folders || manifest.folders.length === 0" class="toc-state">
+    <div v-else-if="!manifest || !currentSite || !currentSite.folders || currentSite.folders.length === 0" class="toc-state">
       <div class="empty-icon">📂</div>
       <p>暂无文件</p>
       <p class="hint">请将图片放入 <code>/public/data/&lt;标题&gt;/&lt;文件夹&gt;/</code> 目录中</p>
     </div>
 
     <template v-else>
-      <h1 class="toc-title">{{ manifest.siteTitle }}</h1>
+      <h1 class="toc-title">{{ currentSite ? currentSite.title : '' }}</h1>
 
       <button class="layout-switch" @click="toggleLayout" :title="layoutMode === 'list' ? '切换到网格布局' : '切换到列表布局'">
         <svg v-if="layoutMode === 'list'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -163,7 +171,7 @@ function shortName(name) {
   flex-direction: column;
   align-items: center;
   overflow-y: auto;
-  padding: 5rem 0.5rem 2rem;
+  padding: 3rem 0.5rem 2rem;
   position: relative;
 }
 
