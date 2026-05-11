@@ -12,7 +12,7 @@
 
 **Goals:**
 - 小组内条目每 5 个换行，降低视觉密度
-- 大组内小组改为多列排列，利用横向空间
+- 大组内小组仅纵向排列（单列），视觉清晰有序
 - 小组间距加大，分组边界更清晰
 - 每个小组首条目加粗，提供边界视觉锚点
 - 大组间响应式 3/2/1 列规则不变
@@ -34,23 +34,13 @@
 
 **备选**: 使用 `flex: 1 1 18%` + `min-width: 18%` — 不够精确，会有对齐问题。
 
-### 2. 大组内小组列排列
+### 2. 大组内小组纵向排列
 
-**选择**: 使用 CSS `columns` 属性，桌面端 3 列，平板 2 列，移动端 1 列（即不做 column 布局，回退垂直堆叠）。
+**选择**: 大组内小组仅纵向堆叠（单列），使用 `display: flex; flex-direction: column; gap: 0.8rem` 控制间距。小组之间不出现横向并排，视觉上更简洁有序。
 
-```css
-.toc-large-group {
-  columns: 3;
-  column-gap: 0.5rem;
-}
-.toc-small-group {
-  break-inside: avoid;  /* 防止小组跨列断开 */
-}
-```
+小组内条目仍然是水平排列（`flex-wrap: wrap`），每行 5 个按钮。
 
-CSS columns 的排列顺序是自上而下再从左到右，与"按列排列"语义一致。
-
-**备选**: CSS Grid `grid-auto-flow: column` — 需要知道总行数才能设置 `grid-template-rows`，不适合动态内容。
+**备选**: CSS `columns` 多列排列 — 会导致小组横向并排，视觉混乱，已否决。
 
 ### 3. 首条目加粗
 
@@ -67,4 +57,3 @@ CSS columns 的排列顺序是自上而下再从左到右，与"按列排列"语
 ## Risks / Trade-offs
 
 - **[Risk] 列数多时小组名称截断** — 每组首条加粗后可能因字宽增加导致截断更明显。Mitigation: 保持 `text-overflow: ellipsis` 截断。
-- **[Risk] CSS columns 在移动端异常** — 某些老浏览器不支持 `columns`。Mitigation: 移动端 `columns: 1` 回退为普通垂直排列。

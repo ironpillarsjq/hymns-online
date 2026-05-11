@@ -54,15 +54,19 @@
 
 ### Requirement: 网格布局小组内排列
 
-系统 SHALL 在小组内水平排列条目按钮，根据屏幕宽度调整每行显示的按钮数量。
+系统 SHALL 在所有视口宽度下统一以每行 5 个按钮的方式在小组内水平排列条目。
 
-#### Scenario: 大屏每行 10 个按钮
-- **WHEN** 视口宽度 >= 1200px
-- **THEN** 小组内每行 SHALL 显示 10 个按钮（`flex: 0 0 calc(10% - gap)`）
+#### Scenario: 所有视口统一 5 个/行
+- **WHEN** 网格布局模式下渲染小组内条目按钮
+- **THEN** 小组内每行 SHALL 显示 5 个按钮（`flex: 0 0 calc((100% - 8px) / 5)`）
 
-#### Scenario: 小屏每行 5 个按钮
-- **WHEN** 视口宽度 < 1200px
-- **THEN** 小组内每行 SHALL 显示 5 个按钮（`flex: 0 0 calc(20% - gap)`）
+### Requirement: 网格布局大组内小组纵向排列
+
+系统 SHALL 在大组内将小组纵向堆叠排列。
+
+#### Scenario: 大组内小组纵向堆积
+- **WHEN** 大组内包含多个小组
+- **THEN** 大组内小组 SHALL 纵向堆叠（`flex-direction: column; gap: 0.8rem`）
 
 ### Requirement: 网格布局大组间响应式列数
 
@@ -102,11 +106,15 @@
 
 ### Requirement: 网格布局按钮样式
 
-网格布局的条目按钮 SHALL 尺寸小巧，适合 300 ~ 1200 条目的密集排列。
+网格布局的条目按钮 SHALL 尺寸小巧，适合 300 ~ 1200 条目的密集排列。每个小组中首条目 SHALL 加粗显示。
 
 #### Scenario: 按钮基础样式
 - **WHEN** 网格布局按钮渲染时
-- **THEN** 按钮 SHALL 满足：字号 0.65rem、padding 0.3em 0.5em、文字居中、white-space: nowrap、cursor pointer、hover 时背景变色
+- **THEN** 按钮 SHALL 满足：字号 0.8rem、padding 0.4em 0.5em、文字居中、white-space: nowrap、cursor pointer、hover 时背景变色
+
+#### Scenario: 首条目加粗
+- **WHEN** 网格布局模式下某小组的首个条目按钮渲染时
+- **THEN** 该按钮 SHALL 设置 font-weight: 700
 
 ### Requirement: 全局可滚动
 

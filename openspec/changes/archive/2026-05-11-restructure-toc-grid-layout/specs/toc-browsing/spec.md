@@ -12,21 +12,13 @@
 - **WHEN** 小组包含 3 个条目
 - **THEN** 该行 SHALL 仅显示 3 个按钮，后续位置留空
 
-### Requirement: 网格布局大组内小组列排列
+### Requirement: 网格布局大组内小组纵向排列
 
-系统 SHALL 在大组内将小组按列排列（桌面 3 列、平板 2 列、移动端 1 列），替代原有的垂直堆叠。
+系统 SHALL 在大组内将小组纵向排列，保持小组之间垂直堆叠（单列），替代原有的多列排列。
 
-#### Scenario: 桌面端大组内 3 列
-- **WHEN** 视口宽度 >= 1200px
-- **THEN** 大组内的小组 SHALL 以 3 列排列（CSS `columns: 3`），单个小组不跨列断开（`break-inside: avoid`）
-
-#### Scenario: 平板端大组内 2 列
-- **WHEN** 视口宽度在 768px ~ 1199px 之间
-- **THEN** 大组内的小组 SHALL 以 2 列排列
-
-#### Scenario: 移动端大组内 1 列
-- **WHEN** 视口宽度 < 768px
-- **THEN** 大组内的小组 SHALL 以 1 列垂直排列（等同于无多列效果）
+#### Scenario: 小组纵向排列
+- **WHEN** 大组包含多个小组
+- **THEN** 小组 SHALL 在垂直方向依次堆叠（`flex-direction: column`），小组之间不出现横向并排
 
 ### Requirement: 网格布局按钮样式
 

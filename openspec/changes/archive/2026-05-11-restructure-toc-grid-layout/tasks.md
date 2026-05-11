@@ -8,8 +8,8 @@
 - [x] 2.1 添加 `.sg-buttons > :first-child { font-weight: 700; }` 实现每组首条目加粗
 - [x] 2.2 将 `.toc-small-group` 的 `margin-bottom: 0.35rem` 增大为 `0.8rem`，增加小组间距
 
-## 3. 大组内小组列排列
+## 3. 大组内小组纵向排列
 
-- [x] 3.1 为 `.toc-large-group` 添加 `columns: 3; column-gap: 0.5rem;`（桌面端）
-- [x] 3.2 添加 `break-inside: avoid` 到 `.toc-small-group`，防止小组跨列断开
-- [x] 3.3 添加响应式：平板 `columns: 2`，移动端 `columns: 1`（匹配 768px / 1200px 断点）
+- [x] 3.1 移除 `.toc-large-group` 的 `columns` / `column-gap`，改为 `display: flex; flex-direction: column; gap: 0.8rem`，确保小组仅纵向堆叠
+- [x] 3.2 移除 `.toc-small-group` 的 `break-inside: avoid` 和 `margin-bottom`（间距由父容器 `gap` 统一控制）
+- [x] 3.3 移除 `.toc-large-group` 的响应式 `columns` 断点（`@media` 中 `columns: 2` / `columns: 1`）

@@ -289,8 +289,9 @@ function shortName(name) {
   border: 1px solid var(--color-light);
   border-radius: 8px;
   padding: 0.75rem;
-  columns: 3;
-  column-gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
 }
 
 .toc-large-group-wrapper {
@@ -306,30 +307,10 @@ function shortName(name) {
   font-weight: 600;
   white-space: nowrap;
 }
-
-/* Responsive columns within large groups */
-@media (max-width: 1199px) and (min-width: 768px) {
-  .toc-large-group {
-    columns: 2;
-  }
-}
-
-@media (max-width: 767px) {
-  .toc-large-group {
-    columns: 1;
-  }
-}
-
 .toc-small-group {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  margin-bottom: 0.8rem;
-  break-inside: avoid;
-}
-
-.toc-small-group:last-child {
-  margin-bottom: 0;
 }
 
 .sg-buttons {
